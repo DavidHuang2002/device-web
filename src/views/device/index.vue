@@ -37,22 +37,39 @@
 
   <div class="device-table-container">
     <el-card class="box-card">
-      <el-table :data="devices">
-        <el-table-column prop="id" label="Id"></el-table-column>
-        <el-table-column prop="name" label="Name"></el-table-column>
-        <el-table-column prop="type" label="Type"></el-table-column>
-        <el-table-column prop="status" label="Status"></el-table-column>
-        <el-table-column prop="location" label="Location"></el-table-column>
-        <el-table-column prop="addedDate" label="Added Date"></el-table-column>
-        <el-table-column prop="lastCheckInTime" label="Last Check In Time"></el-table-column>
-        <el-table-column prop="notes" label="Notes"></el-table-column>
-        <el-table-column label="Operations" width="140" fixed="right" align="center">
-					<template #default="scope">
-						<el-button :icon="Edit" size="small" text type="primary" @click="openEditMenu(scope.row)" v-auth="'sysMenu:update'"> Edit </el-button>
-						<el-button :icon="Delete" size="small" text type="danger" @click="delMenu(scope.row)" v-auth="'sysMenu:delete'"> Delete </el-button>
-					</template>
-				</el-table-column>
+      <el-table :data="devices" style="width: 100%" border>
+        <el-table-column prop="id" label="Id" width="55" align="center" fixed show-overflow-tooltip />
+        <el-table-column prop="name" label="Name" width="120" align="center" fixed show-overflow-tooltip />
+        <el-table-column prop="type" label="Type" width="120" align="center" show-overflow-tooltip />
+        <el-table-column prop="status" label="Status" width="120" align="center" show-overflow-tooltip />
+        <el-table-column prop="location" label="Location" width="120" align="center" show-overflow-tooltip />
+        <el-table-column label="Added Date" width="160" align="center" show-overflow-tooltip>
+            <template #default="scope">
+                {{ formatDate(new Date(scope.row.addedDate), 'YYYY-mm-dd') }}
+            </template>
+        </el-table-column>
+        <el-table-column label="Last Check In Time" width="200" align="center" show-overflow-tooltip>
+            <template #default="scope">
+                {{ formatDate(new Date(scope.row.lastCheckInTime), 'YYYY-mm-dd HH:MM:SS') }}
+            </template>
+        </el-table-column>
+        <el-table-column prop="notes" label="Notes" width="200" align="center" show-overflow-tooltip />
+        <el-table-column label="Operations" width="140" align="center" fixed="right" >
+            <template #default="scope">
+                <el-button :icon="Edit" size="small" text type="primary" @click="openEditMenu(scope.row)" v-auth="'sysMenu:update'"> Edit </el-button>
+                <el-button :icon="Delete" size="small" text type="danger" @click="delMenu(scope.row)"> Delete </el-button>
+                <!-- <el-dropdown>
+                    <el-button icon="ele-MoreFilled" size="small" text type="primary" style="padding-left: 12px" />
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item icon="ele-Delete" @click="delMenu(scope.row)" divided> Delete </el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown> -->
+            </template>
+        </el-table-column>
       </el-table>
+
     </el-card>
   </div>
   <EditDeviceDialog ref="editDialogRef" @deviceAdded="handleDeviceAdded" @deviceEdited="handleDeviceEdited"/>
@@ -64,7 +81,7 @@ import DeviceDataService from '../../services/DeviceDataService';
 import EditDeviceDialog from './component/EditDeviceDialog.vue';
 import { Search, Refresh, Plus, Edit, Delete } from '@element-plus/icons-vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
-
+import {formatDate} from '../../utils/dateUtils';
 
 const queryParams = ref({
   name: undefined,
