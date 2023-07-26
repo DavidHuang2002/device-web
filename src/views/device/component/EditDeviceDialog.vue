@@ -18,7 +18,7 @@
         <el-input v-model="device.location"></el-input>
       </el-form-item>
       <el-form-item label="Last Check-in Time" prop="lastCheckInTime">
-        <el-date-picker v-model="device.lastCheckInTime" type="datetime" placeholder="Select date and time"></el-date-picker>
+        <el-date-picker v-model="device.lastCheckInTime" type="datetime" placeholder="Select date and time" @change="adjustToUTC(device.lastCheckInTime)"></el-date-picker>
       </el-form-item>
       <el-form-item label="Notes" prop="notes">
         <el-input type="textarea" v-model="device.notes"></el-input>
@@ -62,6 +62,11 @@ const rules = ref({
 const state = reactive({
 	dialogVisible: false,
 });
+
+const adjustToUTC = (date) => {
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+  console.log("date change")
+};
 
 
 const isEditMode = ()=>{

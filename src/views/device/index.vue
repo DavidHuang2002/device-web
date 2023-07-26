@@ -1,17 +1,27 @@
 <template>
   <div>
     <el-card class="box-card">
-      <el-form :model="queryParams" ref="queryForm" :inline="true">
-				<!-- <el-form-item label="菜单名称">
-					<el-input v-model="queryParams.title" placeholder="菜单名称" clearable />
-				</el-form-item>
-				<el-form-item label="类型">
-					<el-select v-model="queryParams.type" placeholder="类型" clearable>
-						<el-option label="目录" :value="1" />
-						<el-option label="菜单" :value="2" />
-						<el-option label="按钮" :value="3" />
-					</el-select>
-				</el-form-item> -->
+      <el-form :model="queryParams" ref="queryForm" inline>
+      <el-form-item label="Device Name">
+        <el-input v-model="queryParams.name" placeholder="Device Name" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="Device Type">
+        <el-input v-model="queryParams.type" placeholder="Device Type" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="Device Status">
+        <el-input v-model="queryParams.status" placeholder="Device Status" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="Last Checkin Date Range">
+        <!-- TODO: make custom component - date picker -->
+      <el-date-picker
+        v-model="queryParams.dateRange"
+        type="datetimerange"
+        range-separator="to"
+        start-placeholder="Start Date"
+        end-placeholder="End Date"
+        @change="adjustToUTC(queryParams.dateRange)"
+      ></el-date-picker>
+    </el-form-item>
 				<el-form-item>
 					<el-button-group>
 						<el-button type="primary" :icon="Search" @click="handleQuery" > Search </el-button>
@@ -57,24 +67,63 @@ import { ElMessageBox, ElMessage } from 'element-plus';
 
 
 const queryParams = ref({
-  title: undefined,
-  type: undefined
+  name: undefined,
+  type: undefined,
+  status: undefined,
+  dateRange: undefined
 });
 
 let devices = ref([]);
 const editDialogRef = ref();
 
+const queryIsEmty = ()=>{
+  return Object.keys(queryParams.value).every(key => {
+    return queryParams.value[key] === undefined;
+  });
+}
+
+
+// to adjust the select time into UTC time
+// because the date time picked in the picker defaults to local time and there is no easy way to directly pick UTC time. This function automatically change the time to UTC time whenver the user pick a time
+const adjustToUTC = (dateRange) => {
+  if (dateRange && dateRange.length === 2) {
+    dateRange[0].setMinutes(dateRange[0].getMinutes() - dateRange[0].getTimezoneOffset());
+    dateRange[1].setMinutes(dateRange[1].getMinutes() - dateRange[1].getTimezoneOffset());
+  }
+};
+
+const setDeviceTableData = (data) => {
+  // process the time to local time
+  // data.forEach((item) => {
+  //   item.addedDate = new Date(item.addedDate).toLocaleString();
+  //   item.lastCheckInTime = new Date(item.lastCheckInTime).toLocaleString();
+  // });
+  devices.value = data;
+};
+
 const handleQuery = () => {
-  console.log('queryParam');
-  console.log(queryParams.value);
-  DeviceDataService.getAll()
+  console.log('handleQuery')
+  console.log(queryParams.value)
+
+  if(queryIsEmty()){
+    DeviceDataService.getAll()
     .then(response => {
-      devices.value = response.data;
+      setDeviceTableData(response.data);
       console.log(response.data);
     })
     .catch(e => {
       console.log(e);
     });
+  } else {
+    DeviceDataService.search(queryParams.value)
+    .then(response => {
+      setDeviceTableData(response.data);
+      console.log(response.data);
+    })
+    .catch(e => {
+      console.log(e);
+    });
+  }
 };
 
 const resetQuery = () => {
