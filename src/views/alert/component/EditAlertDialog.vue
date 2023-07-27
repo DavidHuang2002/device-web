@@ -93,7 +93,7 @@
   };
   
   const isEditMode = () => {
-    return alert.value.AlertId !== undefined;
+    return alert.value.alertId !== undefined;
   };
   
   // Open dialog
@@ -123,7 +123,7 @@
   
       if (isEditMode()) {
         // Edit
-        await AlertDataService.update(alert.value.AlertId, alert.value);
+        await AlertDataService.update(alert.value.alertId, alert.value);
         closeDialog();
         emits('alertEdited');
       } else {

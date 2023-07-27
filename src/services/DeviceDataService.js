@@ -30,6 +30,10 @@ class DeviceDataService {
     return http.get(`/devices/search`, {params: this.handleDateRange(queryParams)});
   }
 
+  getRaspberryPiState(id){
+    return http.get(`/devices/raspberryPi/${id}`);
+  }
+
   // some helpers
   appendAddedDate = (data) => {
     const currentDate = new Date();

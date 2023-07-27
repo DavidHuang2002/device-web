@@ -41,26 +41,39 @@
   </div>
   <div class="alert-table-container">
     <el-card class="box-card">
-      <el-table :data="alerts">
-        <el-table-column prop="alertId" label="Alert ID"></el-table-column>
-        <el-table-column prop="deviceId" label="Device ID"></el-table-column>
-        <el-table-column prop="timestamp" label="Timestamp"></el-table-column>
-        <el-table-column prop="severity" label="Severity"></el-table-column>
-        <el-table-column prop="description" label="Description"></el-table-column>
-        <el-table-column prop="status" label="Status"></el-table-column>
-        <el-table-column prop="acknowledgedBy" label="Acknowledged By"></el-table-column>
-        <el-table-column prop="acknowledgedTimestamp" label="Acknowledged Timestamp"></el-table-column>
-        <el-table-column prop="resolvedBy" label="Resolved By"></el-table-column>
-        <el-table-column prop="resolvedTimestamp" label="Resolved Timestamp"></el-table-column>
-        <el-table-column prop="additionalInfo" label="Additional Info"></el-table-column>
-        <el-table-column label="Operations" width="140" fixed="right" align="center">
-          <template #default="scope">
-            <el-button :icon="Edit" size="small" text type="primary" @click="openEditMenu(scope.row)"> Edit </el-button>
-            <el-button :icon="Delete" size="small" text type="danger" @click="delAlert(scope.row)"> Delete </el-button>
-          </template>
+      <el-table :data="alerts" style="width: 100%" border>
+        <el-table-column prop="alertId" label="Alert ID" width="120" align="center" fixed show-overflow-tooltip></el-table-column>
+        <el-table-column prop="deviceId" label="Device ID" width="120" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column label="Timestamp" width="200" align="center" show-overflow-tooltip>
+            <template #default="scope">
+                {{ formatDateFromStr(scope.row.timestamp, 'YYYY-mm-dd HH:MM:SS') }}
+            </template>
+        </el-table-column>
+        <el-table-column prop="severity" label="Severity" width="120" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="description" label="Description" width="200" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="status" label="Status" width="150" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="acknowledgedBy" label="Acknowledged By" width="150" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column label="Acknowledged Timestamp" width="200" align="center" show-overflow-tooltip>
+            <template #default="scope">
+                {{ formatDateFromStr(scope.row.acknowledgedTimestamp, 'YYYY-mm-dd HH:MM:SS') }}
+            </template>
+        </el-table-column>
+        <el-table-column prop="resolvedBy" label="Resolved By" width="120" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column label="Resolved Timestamp" width="200" align="center" show-overflow-tooltip>
+            <template #default="scope">
+                {{ formatDateFromStr(scope.row.resolvedTimestamp, 'YYYY-mm-dd HH:MM:SS') }}
+            </template>
+        </el-table-column>
+        <el-table-column prop="additionalInfo" label="Additional Info" width="200" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column label="Operations" width="140" align="center" fixed="right">
+            <template #default="scope">
+                <el-button :icon="Edit" size="small" text type="primary" @click="openEditMenu(scope.row)" v-auth="'sysMenu:update'"> Edit </el-button>
+                <el-button :icon="Delete" size="small" text type="danger" @click="delAlert(scope.row)"> Delete </el-button>
+            </template>
         </el-table-column>
       </el-table>
     </el-card>
+
   </div>
   <EditAlertDialog ref="editDialogRef" @alertAdded="handleAlertAdded" @alertEdited="handleAlertEdited" />
 </template>
@@ -70,6 +83,7 @@ import AlertDataService from '../../services/AlertDataService';
 import EditAlertDialog from './component/EditAlertDialog.vue';
 import { Search, Refresh, Plus, Edit, Delete } from '@element-plus/icons-vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
+import { formatDateFromStr } from '../../utils/dateUtils';
 
 const queryParams = ref({
   deviceId: undefined,
@@ -141,13 +155,13 @@ const openEditMenu = (row) => {
 };
 
 const delAlert = (row) => {
-  ElMessageBox.confirm(`Are you sure you want to delete alert with ID "${row.AlertId}"?`, 'Confirmation', {
+  ElMessageBox.confirm(`Are you sure you want to delete alert with ID "${row.alertId}"?`, 'Confirmation', {
     confirmButtonText: 'Delete',
     cancelButtonText: 'Cancel',
     type: 'warning',
   })
     .then(async () => {
-      await AlertDataService.delete(row.AlertId);
+      await AlertDataService.delete(row.alertId);
       ElMessage.success('Delete success');
       handleQuery();
     })

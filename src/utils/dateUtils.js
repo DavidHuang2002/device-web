@@ -1,3 +1,8 @@
+export function formatDateFromStr(dateStr, format) {
+    if (dateStr == null) return null;
+    return formatDate(new Date(dateStr), format);
+}
+
 /**
  * Format date and time
  * @param date The current date, in the format of new Date()
@@ -10,6 +15,9 @@
  * @returns The formatted date string
  */
 export function formatDate(date, format) {
+    // handle null date
+    if(date == null) return null;
+
     let weekday = date.getDay(); // Weekday
     let week = getWeek(date); // Week
     let quarter = Math.floor((date.getMonth() + 3) / 3).toString(); // Quarter

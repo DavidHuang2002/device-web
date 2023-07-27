@@ -45,12 +45,12 @@
         <el-table-column prop="location" label="Location" width="120" align="center" show-overflow-tooltip />
         <el-table-column label="Added Date" width="160" align="center" show-overflow-tooltip>
             <template #default="scope">
-                {{ formatDate(new Date(scope.row.addedDate), 'YYYY-mm-dd') }}
+                {{ formatDateFromStr(scope.row.addedDate, 'YYYY-mm-dd') }}
             </template>
         </el-table-column>
         <el-table-column label="Last Check In Time" width="200" align="center" show-overflow-tooltip>
             <template #default="scope">
-                {{ formatDate(new Date(scope.row.lastCheckInTime), 'YYYY-mm-dd HH:MM:SS') }}
+                {{ formatDateFromStr(scope.row.lastCheckInTime, 'YYYY-mm-dd HH:MM:SS') }}
             </template>
         </el-table-column>
         <el-table-column prop="notes" label="Notes" width="200" align="center" show-overflow-tooltip />
@@ -58,7 +58,8 @@
             <template #default="scope">
                 <el-button :icon="Edit" size="small" text type="primary" @click="openEditMenu(scope.row)" v-auth="'sysMenu:update'"> Edit </el-button>
                 <el-button :icon="Delete" size="small" text type="danger" @click="delMenu(scope.row)"> Delete </el-button>
-                <!-- <el-dropdown>
+                <el-button v-if="isRaspberryPi(scope.row)" :icon="Odometer" size="small" text  @click="showDeviceState(scope.row)"> Show State </el-button>
+                <!-- <el-dropdown v-if="isRaspberryPi(scope.row)">
                     <el-button icon="ele-MoreFilled" size="small" text type="primary" style="padding-left: 12px" />
                     <template #dropdown>
                         <el-dropdown-menu>
@@ -69,8 +70,24 @@
             </template>
         </el-table-column>
       </el-table>
-
     </el-card>
+
+    <el-dialog
+      v-model="stateDialogVisible"
+      :title="`state for ${raspberryPiState.name} `"
+      width="30%"
+    >
+      <p>Temperature: {{ raspberryPiState.temperature }}</p>
+      <p>Humidity: {{ raspberryPiState.humidity }}</p>
+      <p>Time of state update: {{ formatDateFromStr(raspberryPiState.lastCheckInTime, 'YYYY-mm-dd HH:MM:SS') }}</p>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="stateDialogVisible = false">
+            OK
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
   <EditDeviceDialog ref="editDialogRef" @deviceAdded="handleDeviceAdded" @deviceEdited="handleDeviceEdited"/>
 </template>
@@ -79,9 +96,9 @@
 import { ref, onMounted } from 'vue';
 import DeviceDataService from '../../services/DeviceDataService';
 import EditDeviceDialog from './component/EditDeviceDialog.vue';
-import { Search, Refresh, Plus, Edit, Delete } from '@element-plus/icons-vue';
+import { Search, Refresh, Plus, Edit, Delete, Odometer } from '@element-plus/icons-vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
-import {formatDate} from '../../utils/dateUtils';
+import {formatDateFromStr} from '../../utils/dateUtils';
 
 const queryParams = ref({
   name: undefined,
@@ -91,7 +108,14 @@ const queryParams = ref({
 });
 
 let devices = ref([]);
+const stateDialogVisible = ref(false);
 const editDialogRef = ref();
+const raspberryPiState = ref({});
+
+
+const isRaspberryPi = (device) => {
+  return device.type === 'Raspberry Pi Web Client';
+};
 
 const queryIsEmty = ()=>{
   return Object.keys(queryParams.value).every(key => {
@@ -175,6 +199,20 @@ const delMenu = (row) => {
 		})
 		.catch((e) => {console.error(e)});
 };
+
+const  showDeviceState = async (row) => {
+  console.log('showDeviceState');
+  console.log(row);
+  DeviceDataService.getRaspberryPiState(row.id)
+  .then(
+    (response) => {
+      console.log(response.data);
+      stateDialogVisible.value = true;
+      raspberryPiState.value = response.data;
+      
+    }
+  )
+}
 
 const handleDeviceAdded = () => {
   ElMessage.success("successfully added device");
