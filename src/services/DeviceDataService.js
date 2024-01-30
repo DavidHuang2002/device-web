@@ -9,6 +9,10 @@ class DeviceDataService {
     return http.get(`/devices/${id}`);
   }
 
+  getAlertRules(id) {
+    return http.get(`/devices/${id}/alertRules`);
+  }
+
   create(data) {
 
     this.appendAddedDate(data);
@@ -52,6 +56,7 @@ class DeviceDataService {
       return newParams;
     }
 
+   
     return queryParams;
   }
 }

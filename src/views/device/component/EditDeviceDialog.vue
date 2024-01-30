@@ -5,6 +5,10 @@
       width="30%"
     >
     <el-form :model="device" :rules="rules" ref="deviceForm">
+      <el-form-item>
+        <el-button type="default" @click="openAlertRulesDrawer">Manage Alert Rules</el-button>
+        <alert-rules-drawer ref = "alertRulesDrawerRef" :device-id="device.id " />
+      </el-form-item>
       <el-form-item label="Name" prop="name">
         <el-input v-model="device.name"></el-input>
       </el-form-item>
@@ -34,7 +38,7 @@
 <script setup name="editDeviceDialog">
 import { reactive, ref } from 'vue';
 import DeviceDataService from '../../../services/DeviceDataService';
-
+import AlertRulesDrawer from './AlertRulesDrawer.vue';
 
 
 const defaultFormValues = {
@@ -59,6 +63,8 @@ const rules = ref({
   ],
 });
 
+const alertRulesDrawerRef = ref();
+
 const state = reactive({
 	dialogVisible: false,
 });
@@ -82,6 +88,11 @@ const openDialog = (row) => {
     device.value = defaultFormValues;
   }
 };
+
+const openAlertRulesDrawer = () => {
+  alertRulesDrawerRef.value?.openDrawer(device.value);
+};
+
 
 // 关闭弹窗
 const closeDialog = () => {
@@ -117,5 +128,5 @@ const submit = () => {
 };
 
 // 导出对象
-defineExpose({ openDialog });
+defineExpose({ openDialog, openAlertRulesDrawer  });
 </script>

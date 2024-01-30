@@ -82,7 +82,7 @@
       <p>Time of state update: {{ formatDateFromStr(raspberryPiState.lastCheckInTime, 'YYYY-mm-dd HH:MM:SS') }}</p>
       <template #footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="stateDialogVisible = false">
+          <el-button type="primary" @click="closeDeviceState">
             OK
           </el-button>
         </span>
@@ -111,6 +111,7 @@ let devices = ref([]);
 const stateDialogVisible = ref(false);
 const editDialogRef = ref();
 const raspberryPiState = ref({});
+let timer;
 
 
 const isRaspberryPi = (device) => {
@@ -167,6 +168,21 @@ const handleQuery = () => {
   }
 };
 
+const fetchDeviceState = async (deviceId, callback)=>{
+  DeviceDataService.getRaspberryPiState(deviceId)
+  .then(
+    (response) => {
+      console.log(response.data);
+      raspberryPiState.value = response.data;
+      if(callback){
+        callback(response);
+      }
+    }
+  )
+  
+  // TODO add error handling
+}
+
 const resetQuery = () => {
   queryParams.value = {
     title: undefined,
@@ -200,18 +216,24 @@ const delMenu = (row) => {
 		.catch((e) => {console.error(e)});
 };
 
-const  showDeviceState = async (row) => {
+
+const showDeviceState = async (row) => {
   console.log('showDeviceState');
   console.log(row);
-  DeviceDataService.getRaspberryPiState(row.id)
-  .then(
-    (response) => {
-      console.log(response.data);
-      stateDialogVisible.value = true;
-      raspberryPiState.value = response.data;
-      
-    }
-  )
+  
+  await fetchDeviceState(row.id, (res)=>{
+    stateDialogVisible.value = true;
+  });
+
+  // Set up a recurring timer to fetch the updated device state every 5 seconds
+  timer = setInterval(() => {
+      fetchDeviceState(row.id);
+  }, 5000);
+}
+
+const closeDeviceState = () => {
+  stateDialogVisible.value = false;
+  clearInterval(timer);
 }
 
 const handleDeviceAdded = () => {
