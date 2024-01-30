@@ -82,7 +82,7 @@ import { ElMessage } from 'element-plus';
   const emptyAlertRule = {
         name: null,
         // TODO: make sure the device id is inited
-        deviceId: ,
+        deviceId: null,
         attribute: null,
         attributeDataType: null,
         operator: null,
