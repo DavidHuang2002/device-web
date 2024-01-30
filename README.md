@@ -1,35 +1,8 @@
 # device-web
 
-This template should help get you started developing with Vue 3 in Vite.
+Front-end to the Device Management app 
+https://github.com/DavidHuang2002/Device-Management-backend
 
-## Recommended IDE Setup
+![image](./demo/Screenshot%202024-01-29%20225159.png)
+![image](./demo/Screenshot%202024-01-29%20225350.png)
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
